@@ -71,7 +71,7 @@ def search_videos(channel_id):
 
             r = requests.get(f"{BASE_URL}/search", params=params)
             if r.status_code == 403:
-                print("⚠️ Quota atingida durante search.")
+                print("Quota atingida durante search.")
                 return video_ids
 
             r.raise_for_status()
@@ -109,7 +109,7 @@ def get_video_details(video_ids):
 
         r = requests.get(f"{BASE_URL}/videos", params=params)
         if r.status_code == 403:
-            print("⚠️ Quota atingida durante videos.list.")
+            print("Quota atingida durante videos.list.")
             return videos
 
         r.raise_for_status()
@@ -144,7 +144,7 @@ def get_comments(video_id):
 
         r = requests.get(f"{BASE_URL}/commentThreads", params=params)
         if r.status_code == 403:
-            print("⚠️ Quota atingida durante comments.")
+            print("Quota atingida durante comments.")
             break
 
         r.raise_for_status()
@@ -168,10 +168,10 @@ def get_comments(video_id):
 # ================= PIPELINE =================
 
 def process_channel(name, channel_id):
-    print(f"\n▶ Canal: {name}")
+    print(f"\nCanal: {name}")
 
     video_ids = search_videos(channel_id)
-    print(f"✔ {len(video_ids)} vídeos encontrados")
+    print(f"{len(video_ids)} vídeos encontrados")
 
     videos = get_video_details(video_ids)
 
@@ -192,7 +192,7 @@ def process_channel(name, channel_id):
     output_path = OUTPUT_DIR / f"{name}_comments.csv"
     df.to_csv(output_path, index=False, encoding="utf-8")
 
-    print(f"✔ {len(df)} comentários salvos em {output_path}")
+    print(f"{len(df)} comentários salvos em {output_path}")
 
 
 # ================= MAIN =================
