@@ -1,37 +1,54 @@
+from dotenv import load_dotenv
 import requests
 import pandas as pd
 import time
+import os
 from pathlib import Path
 
-from src.scripts.config.config import YOUTUBE_API_KEY
+load_dotenv()
+
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
 # ================= CONFIG =================
 
 BASE_URL = "https://www.googleapis.com/youtube/v3"
 
-OUTPUT_DIR = Path("../data/raw_comments")
+OUTPUT_DIR = Path("../../../data/raw_comments")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Optou-se por coletar um número limitado de comentários por vídeo, 
 # priorizando a diversidade de vídeos analisados, de forma a reduzir viés de correlação entre comentários e 
 # aumentar a variabilidade temática do conjunto de dados.
-MAX_VIDEOS_PER_CHANNEL = 100
-MAX_COMMENTS_PER_VIDEO = 30
+MAX_VIDEOS_PER_CHANNEL = 50
+MAX_COMMENTS_PER_VIDEO = 100
 
 QUERY_TERMS = [
+    # Termos identitários
     "trans",
     "transexual",
     "transgênero",
     "transgenero",
+    "travesti",
     "mulher trans",
     "homem trans",
+    "pessoa trans",
     "pessoas trans",
+
+    # Direitos e reconhecimento
     "identidade de gênero",
     "nome social",
-    "banheiro trans",
+
+    # Discurso público e político
     "ideologia de gênero",
     "lei trans",
+    "cota trans",
+
+    # Termos relacionados a preconceito
+    "transfobia",
+    "transfóbico",
+    "transfobico",
 ]
+
 
 CHANNEL_IDS = {
     # "g1globo": "UCaGmdJSSiR7fkh2A-c6emsA",
@@ -40,8 +57,7 @@ CHANNEL_IDS = {
     # "folha": "UCmYuiV9wAR3i8p19Ygc7izg",
     # "bbc": "UCthbIFAxbXTTQEC7EcQvP1Q",
     # "metropoles": "UC9mdw2mmn49ZuqGOpSri7Fw",
-    # "globonews": "UCp6RRaz93Pt2xYZoEye_rLA",
-    # "recordnews": "UCuiLR4p6wQ3xLEm15pEn1Xw",
+    # "uol": "UCVFbXI6Gu8U2f9Gjtxw4A-Q",
 }
 
 # ================= API HELPERS =================
@@ -189,7 +205,7 @@ def process_channel(name, channel_id):
 
     df = pd.DataFrame(rows)
 
-    output_path = OUTPUT_DIR / f"{name}_comments.csv"
+    output_path = OUTPUT_DIR / f"{name}.csv"
     df.to_csv(output_path, index=False, encoding="utf-8")
 
     print(f"{len(df)} comentários salvos em {output_path}")

@@ -92,6 +92,8 @@ def process_file(csv_path: Path):
     df["comment_clean"] = df["comment"].apply(clean_text)
     df = df.dropna(subset=["comment_clean"])
 
+    df = df.drop(columns=["source", "video_id", "comment"])
+
     output_path = CLEAN_DIR / csv_path.name
     df.to_csv(output_path, index=False, encoding="utf-8")
 
