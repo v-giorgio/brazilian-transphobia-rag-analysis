@@ -6,7 +6,7 @@ from pathlib import Path
 # PATHS
 # =========================
 
-RAW_DIR = Path("../../../data/raw_comments")
+RAW_DIR = Path("../../../data/manual_selection")
 CLEAN_DIR = Path("../../../data/cleaned_comments")
 CLEAN_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -15,39 +15,118 @@ CLEAN_DIR.mkdir(parents=True, exist_ok=True)
 # =========================
 
 def to_lowercase(text: str) -> str:
+    """
+    Converte todo o texto para letras minúsculas. 
+    Obj.: Reduzir a variabilidade textual causada por diferenças de capitalização, facilitando a comparação e o aprendizado dos modelos de PLN.
+    """
     return text.lower()
 
 
 def normalize_whitespace(text: str) -> str:
+    """
+    Normaliza espaços em branco no texto.
+    Obj.: Substituir múltiplos espaços, quebras de linha e tabulações por um único espaço, além de remover espaços no início e no fim do texto.
+    """
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 
 def remove_urls(text: str) -> str:
+    """
+    Remove URLs do texto.
+    Obj.: Eliminar links externos que não contribuem semanticamente para a análise do conteúdo textual e podem introduzir ruído no modelo.
+    """
     return re.sub(r"http\S+|www\S+", "", text)
 
 
 def remove_timestamps(text: str) -> str:
+    """
+    Remove URLs do texto.
+    Obj.: Eliminar links externos que não contribuem semanticamente para a análise do conteúdo textual e podem introduzir ruído no modelo.
+    """
     return re.sub(r"\b\d{1,2}:\d{2}\b", "", text)
 
 
 def normalize_punctuation(text: str) -> str:
+    """
+    Normaliza pontuação repetida.
+    Obj.: Reduzir sequências exageradas de pontuação (ex.: '!!!', '???', '...') para apenas um caractere, mantendo a intenção discursiva sem ruído.
+    """
     text = re.sub(r"([!?\.]){2,}", r"\1", text)
     return text
 
 
 def normalize_elongated_words(text: str) -> str:
+    """
+    Normaliza palavras com caracteres excessivamente repetidos.
+    Obj.: Reduzir alongamentos artificiais de palavras (ex.: 'nooooossa', 'ameeeei') para uma forma mais padronizada, 
+    preservando o tom emocional sem prejudicar a análise lexical.
+    """
     return re.sub(r"(.)\1{3,}", r"\1\1", text)
 
 
 def remove_non_linguistic_symbols(text: str) -> str:
+    """
+    Remove símbolos não linguísticos do texto.
+    Obj.: Eliminar caracteres que não fazem parte da linguagem escrita natural (emojis, símbolos gráficos, etc.), 
+    mantendo letras acentuadas do português e sinais básicos de pontuação.
+    """
     return re.sub(r"[^\w\sà-úÀ-Ú.,!?]", "", text)
 
 
-def remove_short_comments(text: str, min_chars: int = 10) -> str | None:
+def remove_short_comments(text: str, min_chars: int = 15) -> str | None:
+    """
+    Remove comentários excessivamente curtos.
+    Obj.: Filtrar textos com baixa densidade informacional, que tendem a ser semanticamente ambíguos ou pouco úteis
+    para tarefas de classificação (ex.: 'kk', 'nao', 'ruim').
+    """
     if len(text) < min_chars:
         return None
     return text
+
+
+# =========================
+# DATAFRAME NORMALIZATION
+# =========================
+
+def normalize_and_add_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Renomeia comment_clean para comment e adiciona colunas faltantes conforme o schema final do dataset.
+    Obj.: Garantir que o DataFrame final possua todas as colunas necessárias para análises subsequentes,
+    mesmo que algumas delas não estejam presentes nos dados originais.
+    """
+    if "comment_clean" in df.columns:
+        df = df.rename(columns={"comment_clean": "comment"})
+
+    required_columns = {
+        # Anotação manual (anotadores humanos)
+        "attitude_manual": pd.NA,
+        "offensivo_manual": pd.NA,
+        "subject_manual": pd.NA,
+
+        # Distribuição de probabilidades – atitude discursiva
+        "attitude_dist_supportive": pd.NA,
+        "attitude_dist_neutral": pd.NA,
+        "attitude_dist_hateful": pd.NA,
+
+        # Distribuição de probabilidades – ofensividade
+        "offensive_dist_non_offensive": pd.NA,
+        "offensive_dist_offensive": pd.NA,
+
+        # Distribuição de probabilidades – cunho discursivo
+        "subject_dist_religion": pd.NA,
+        "subject_dist_politics": pd.NA,
+        "subject_dist_gender_denial": pd.NA,
+        "subject_dist_harrassment": pd.NA,
+        "subject_dist_threatening": pd.NA,
+        "subject_dist_pseudoscience": pd.NA,
+    }
+
+    for col, default_value in required_columns.items():
+        if col not in df.columns:
+            df[col] = default_value
+
+    return df
 
 
 # =========================
@@ -93,6 +172,8 @@ def process_file(csv_path: Path):
     df = df.dropna(subset=["comment_clean"])
 
     df = df.drop(columns=["source", "video_id", "comment"])
+
+    df = normalize_and_add_columns(df)
 
     output_path = CLEAN_DIR / csv_path.name
     df.to_csv(output_path, index=False, encoding="utf-8")

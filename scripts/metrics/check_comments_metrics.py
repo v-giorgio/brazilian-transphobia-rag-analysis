@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 
-CSV_DIR = Path("../../data/manual_selection")
+CSV_DIR = Path("../../data/cleaned_comments")
 
 total_geral = 0
 
