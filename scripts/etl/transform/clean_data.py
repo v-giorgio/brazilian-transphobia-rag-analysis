@@ -85,6 +85,27 @@ def remove_short_comments(text: str, min_chars: int = 15) -> str | None:
     return text
 
 
+def limit_comment_length(
+    text: str,
+    max_sentences: int = 5,
+    max_words: int = 200
+) -> str:
+    """
+    Limita o tamanho de comentários textuais excessivamente longos.
+    Obj.: Reduzir ruído e padronizar o tamanho dos textos, preservando unidades linguísticas completas 
+    (frases) e o conteúdo semântico principal. A estratégia combina limitação por número de frases 
+    e, adicionalmente, por número máximo de palavras, evitando perda abrupta de contexto.
+    """
+    sentences = re.split(r'(?<=[.!?])\s+', text)
+    text_limited = " ".join(sentences[:max_sentences])
+
+    words = text_limited.split()
+    if len(words) > max_words:
+        text_limited = " ".join(words[:max_words])
+
+    return text_limited
+
+
 # =========================
 # DATAFRAME NORMALIZATION
 # =========================
@@ -101,7 +122,7 @@ def normalize_and_add_columns(df: pd.DataFrame) -> pd.DataFrame:
     required_columns = {
         # Anotação manual (anotadores humanos)
         "attitude_manual": pd.NA,
-        "offensivo_manual": pd.NA,
+        "offensive_manual": pd.NA,
         "subject_manual": pd.NA,
 
         # Distribuição de probabilidades – atitude discursiva
@@ -138,18 +159,18 @@ def clean_text(text: str) -> str | None:
         return None
 
     # -- NORMALIZATION --
-    text = to_lowercase(text)
     text = remove_urls(text)
     text = remove_timestamps(text)
+    text = remove_non_linguistic_symbols(text)
 
     # -- CLEANING --
+    text = to_lowercase(text)
     text = normalize_whitespace(text)
     text = normalize_punctuation(text)
     text = normalize_elongated_words(text)
-    text = remove_non_linguistic_symbols(text)
 
-    # -- FILTER --
-    text = normalize_whitespace(text)
+    # -- FILTER & LIMIT LENGTH --
+    text = limit_comment_length(text)
     text = remove_short_comments(text)
 
     return text
