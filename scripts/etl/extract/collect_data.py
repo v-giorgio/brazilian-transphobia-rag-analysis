@@ -155,6 +155,7 @@ def get_comments(video_id):
             "maxResults": 100,
             "pageToken": next_page,
             "textFormat": "plainText",
+            "order": "relevance",
             "key": YOUTUBE_API_KEY,
         }
 

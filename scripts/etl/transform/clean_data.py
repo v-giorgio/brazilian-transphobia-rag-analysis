@@ -192,7 +192,7 @@ def process_file(csv_path: Path):
     df["comment_clean"] = df["comment"].apply(clean_text)
     df = df.dropna(subset=["comment_clean"])
 
-    df = df.drop(columns=["source", "video_id", "comment"])
+    df = df.drop(columns=["source", "comment"])
 
     df = normalize_and_add_columns(df)
 
