@@ -29,10 +29,141 @@ const TOKEN_TTL_MINUTES = 30;
 const TOKEN_CACHE_KEY = "annotation_token";
 const TOKEN_EXP_KEY = "annotation_token_exp";
 
+function GuideContent() {
+  return (
+    <div style={{ fontSize: "0.95rem" }}>
+      <p className="mb-2">
+        Durante as anotações, você irá ler comentários e classificá-los de acordo com:
+      </p>
+
+      <strong>1. Atitude em relação a pessoas trans</strong>
+      <ul className="mb-3">
+        <li>
+          <strong>Apoio:</strong> demonstra apoio ou empatia.
+          <br />
+          <em>Ex.: “todo mundo merece respeito”, “o que custa demonstrar empatia?”</em>
+        </li>
+        <li>
+          <strong>Neutro:</strong> não expressa julgamento claro ou não está relacionado ao tema.
+          <br />
+          <em>Ex.: “sei nem o que dizer”, “que vídeo interessante”</em>
+        </li>
+        <li>
+          <strong>Ódio / Intolerância:</strong> expressa rejeição, invalidação ou ataque.
+          <br />
+          <em>Ex.: “isso é absurdo, essas pessoas não deveriam existir”, “que nojo”</em>
+        </li>
+      </ul>
+
+      <strong>2. Linguagem ofensiva</strong>
+      <ul className="mb-3">
+        <li>
+          <strong>Ofensivo:</strong> contém insultos, xingamentos ou humilhações.
+          <br />
+          <em>Ex.: “que gente nojenta”</em>
+        </li>
+        <li>
+          <strong>Não ofensivo:</strong> não contém esse tipo de linguagem.
+          <br />
+          <em>Ex.: “não concordo com isso”</em>
+        </li>
+      </ul>
+
+      <strong>3. Vertentes</strong>
+      <p className="mb-1">
+        Marque uma ou mais opções que melhor representem o foco do comentário:
+      </p>
+      <ul className="mb-3">
+        <li>
+          Religião — <em>“isso vai contra a vontade de deus”</em>
+        </li>
+        <li>
+          Política — <em>“isso é culpa da esquerda”</em>
+        </li>
+        <li>
+          Negação de gênero — <em>“mas só existe homem e mulher”</em>
+        </li>
+        <li>
+          Assédio — <em>“essas pessoas são doentes”</em>
+        </li>
+        <li>
+          Ameaça — <em>“se eu te encontro na rua, eu te machucaria”</em>
+        </li>
+        <li>
+          Pseudociência — <em>“mas só existe cromossomo XX e XY”</em>
+        </li>
+      </ul>
+
+      <p className="mb-0">
+        Em caso de dúvida, escolha a opção que melhor represente o sentido predominante do
+        comentário. Caso não encontre, não é obrigatório marcar as vertentes.
+      </p>
+    </div>
+  );
+}
+
+interface GuideButtonProps {
+  onClick: () => void;
+}
+
+function GuideButton({ onClick }: GuideButtonProps) {
+  return (
+    <button
+      type="button"
+      className="btn btn-outline-secondary btn-sm"
+      onClick={onClick}
+      title="Abrir guia de anotação"
+    >
+      Guia de anotação
+    </button>
+  );
+}
+
+interface GuideModalProps {
+  open: boolean;
+  onClose: () => void;
+}
+
+function GuideModal({ open, onClose }: GuideModalProps) {
+  if (!open) return null;
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundColor: "rgba(0,0,0,0.35)",
+          zIndex: 1040,
+        }}
+      />
+      <div
+        className="card shadow"
+        style={{
+          position: "fixed",
+          top: "5%",
+          left: "50%",
+          transform: "translateX(-50%)",
+          width: "min(760px, 92vw)",
+          maxHeight: "85vh",
+          overflowY: "auto",
+          zIndex: 1050,
+        }}
+      >
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <strong>Guia de anotação</strong>
+          <button type="button" className="btn-close" onClick={onClose} aria-label="Fechar" />
+        </div>
+        <div className="card-body">
+          <GuideContent />
+        </div>
+      </div>
+    </>
+  );
+}
+
 export default function App() {
-  // ===========================
-  // ESTADOS GLOBAIS
-  // ===========================
   const [tokenError, setTokenError] = useState("");
 
   const [token, setToken] = useState<string | null>(null);
@@ -47,10 +178,8 @@ export default function App() {
   const [aspects, setAspects] = useState<string[]>([]);
 
   const [progress, setProgress] = useState<ProgressResponse | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
 
-  // ===========================
-  // DATA FETCH
-  // ===========================
   const fetchNext = async () => {
     if (!token) return;
 
@@ -60,7 +189,6 @@ export default function App() {
     try {
       const res = await fetch(`${API_BASE}/api/next?token=${token}`);
 
-      // TOKEN INVÁLIDO
       if (res.status === 401 || res.status === 403) {
         clearToken();
         setToken(null);
@@ -72,11 +200,9 @@ export default function App() {
 
       const data: AssignmentResponse = await res.json();
 
-      // TOKEN VÁLIDO, MAS SEM COMENTÁRIOS
       if (data.done) {
         setAssignment(null);
       } else if (!data.comment) {
-        // proteção extra contra respostas quebradas
         setAssignment(null);
         setTokenError("Erro ao carregar comentário. Avise o pesquisador.");
         setToken(null);
@@ -108,12 +234,8 @@ export default function App() {
       fetchNext();
       fetchProgress();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // ===========================
-  // SUBMIT
-  // ===========================
   const submit = async () => {
     if (!assignment || !token) return;
 
@@ -178,92 +300,24 @@ export default function App() {
     sessionStorage.removeItem(TOKEN_EXP_KEY);
   };
 
-  // ===========================
-  // TELA 1 — HOME / TOKEN
-  // ===========================
   if (!token) {
     return (
-      <div className="container mt-5 mb-5" style={{ maxWidth: 480 }}>
-        <h4 className="mb-3">Sistema de Anotação</h4>
+      <div className="container mt-5 mb-5" style={{ maxWidth: 520 }}>
+        <GuideModal open={showGuide} onClose={() => setShowGuide(false)} />
+
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h4 className="mb-0">Sistema de Anotação</h4>
+          <GuideButton onClick={() => setShowGuide(true)} />
+        </div>
 
         <p className="text-muted">
-          Este sistema tem como objetivo coletar anotações sobre comentários do
-          YouTube relacionados a comunidade trans.
+          Este sistema tem como objetivo coletar anotações sobre comentários do YouTube
+          relacionados à comunidade trans.
         </p>
 
-        <div className="alert alert-secondary" style={{ fontSize: "0.9rem" }}>
-          <p className="mb-2">
-            Durante as anotações, você irá ler comentários e classificá-los de
-            acordo com:
-          </p>
-
-          <strong>1. Atitude</strong>
-          <ul className="mb-2">
-            <li>
-              <strong>Apoio:</strong> demonstra apoio ou empatia.
-              <br />
-              <em>Ex.: “todo mundo merece respeito”</em>
-            </li>
-            <li>
-              <strong>Neutro:</strong> não expressa julgamento claro ou não está relacionado ao tema.
-              <br />
-              <em>Ex.: “sei nem o que dizer”</em>
-            </li>
-            <li>
-              <strong>Ódio / Intolerância:</strong> expressa rejeição ou ataque.
-              <br />
-              <em>
-                Ex.: “isso é absurdo, essas pessoas não deveriam existir”
-              </em>
-            </li>
-          </ul>
-
-          <strong>2. Linguagem ofensiva</strong>
-          <ul className="mb-2">
-            <li>
-              <strong>Ofensivo:</strong> contém insultos, xingamentos ou
-              humilhações.
-              <br />
-              <em>Ex.: “que gente nojenta”</em>
-            </li>
-            <li>
-              <strong>Não ofensivo:</strong> não contém esse tipo de linguagem.
-              <br />
-              <em>Ex.: “não concordo com isso”</em>
-            </li>
-          </ul>
-
-          <strong>3. Vertentes</strong>
-          <p className="mb-1">
-            Marque uma ou mais opções que melhor representem o foco do
-            comentário, como:
-          </p>
-          <ul className="mb-0">
-            <li>
-              Religião — <em>“isso vai contra a vontade de deus”</em>
-            </li>
-            <li>
-              Política — <em>“isso é culpa da esquerda”</em>
-            </li>
-            <li>
-              Negação de gênero — <em>“mas só existe homem e mulher”</em>
-            </li>
-            <li>
-              Assédio — <em>“essas pessoas são doentes”</em>
-            </li>
-            <li>
-              Ameaça — <em>“se eu encontro na rua eu vou atacar”</em>
-            </li>
-            <li>
-              Pseudociência —{" "}
-              <em>“a ciência já provou que não existe dois sexos”</em>
-            </li>
-          </ul>
-
-          <p className="mt-2 mb-0">
-            Em caso de dúvida, escolha a opção que melhor represente o sentido
-            predominante do comentário. Caso não encontre, não é obrigatório marcar as vertentes.
-          </p>
+        <div className="alert alert-light border" style={{ fontSize: "0.95rem" }}>
+          Leia o guia antes de iniciar. Depois, ele continuará disponível durante toda a
+          anotação pelo botão <strong>“Guia de anotação”</strong>.
         </div>
 
         <p className="text-muted">
@@ -296,9 +350,6 @@ export default function App() {
     );
   }
 
-  // ===========================
-  // TELA 2 — LOADING / FIM
-  // ===========================
   if (loading) {
     return <div className="container mt-5">Carregando…</div>;
   }
@@ -306,6 +357,12 @@ export default function App() {
   if (!assignment) {
     return (
       <div className="container mt-5">
+        <GuideModal open={showGuide} onClose={() => setShowGuide(false)} />
+
+        <div className="d-flex justify-content-end mb-3">
+          <GuideButton onClick={() => setShowGuide(true)} />
+        </div>
+
         <div className="alert alert-success mt-3">
           🎉 Todas as anotações concluídas. Obrigado pela participação!
         </div>
@@ -313,34 +370,41 @@ export default function App() {
     );
   }
 
-  // ===========================
-  // TELA 3 — ANOTAÇÃO
-  // ===========================
   return (
-    <div className="container mt-4">
-      {progress && (
-        <div className="mb-3">
-          <div className="d-flex justify-content-between">
-            <small>
-              Progresso: {progress.done} / {progress.total}
-            </small>
-            <small>{Math.round((progress.done / progress.total) * 100)}%</small>
-          </div>
+    <div className="container mt-4 mb-5" style={{ maxWidth: 900 }}>
+      <GuideModal open={showGuide} onClose={() => setShowGuide(false)} />
 
-          <div className="progress">
-            <div
-              className="progress-bar"
-              role="progressbar"
-              style={{
-                width: `${(progress.done / progress.total) * 100}%`,
-              }}
-              aria-valuenow={progress.done}
-              aria-valuemin={0}
-              aria-valuemax={progress.total}
-            />
-          </div>
+      <div className="d-flex justify-content-between align-items-start mb-3 gap-3">
+        <div className="flex-grow-1">
+          {progress && (
+            <div>
+              <div className="d-flex justify-content-between">
+                <small>
+                  Progresso: {progress.done} / {progress.total}
+                </small>
+                <small>{Math.round((progress.done / progress.total) * 100)}%</small>
+              </div>
+
+              <div className="progress">
+                <div
+                  className="progress-bar"
+                  role="progressbar"
+                  style={{
+                    width: `${(progress.done / progress.total) * 100}%`,
+                  }}
+                  aria-valuenow={progress.done}
+                  aria-valuemin={0}
+                  aria-valuemax={progress.total}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      )}
+
+        <div style={{ flexShrink: 0 }}>
+          <GuideButton onClick={() => setShowGuide(true)} />
+        </div>
+      </div>
 
       <h6 className="text-muted mb-1">Título do vídeo</h6>
       <h5 className="mb-3">{assignment.video_title}</h5>
@@ -353,7 +417,12 @@ export default function App() {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Discurso</label>
+        <label
+          className="form-label"
+          title="Classifique a atitude principal do comentário em relação a pessoas trans."
+        >
+          Discurso
+        </label>
         <select
           className="form-select"
           value={speech}
@@ -367,7 +436,10 @@ export default function App() {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">
+        <label
+          className="form-label"
+          title="Marque como ofensivo quando houver xingamento, humilhação ou agressividade verbal explícita."
+        >
           É ofensivo? (ex.: contém palavras explícitas ou expressões de humilhação)
         </label>
         <select
@@ -382,7 +454,12 @@ export default function App() {
       </div>
 
       <div className="mb-3">
-        <label className="form-label">Vertentes</label>
+        <label
+          className="form-label"
+          title="Selecione uma ou mais vertentes que apareçam no foco do comentário."
+        >
+          Vertentes
+        </label>
         {Object.entries(ASPECT_LABELS).map(([value, label]) => (
           <div className="form-check" key={value}>
             <input
