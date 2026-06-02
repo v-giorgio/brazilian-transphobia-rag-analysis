@@ -9,8 +9,6 @@ load_dotenv()
 
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 
-# ================= CONFIG =================
-
 BASE_URL = "https://www.googleapis.com/youtube/v3"
 
 OUTPUT_DIR = Path("../../../data/raw_comments")
@@ -42,6 +40,7 @@ QUERY_TERMS = [
     "ideologia de gênero",
     "lei trans",
     "cota trans",
+    "banheiro trans",
 
     # Termos relacionados a preconceito
     "transfobia",
@@ -182,8 +181,6 @@ def get_comments(video_id):
     return comments
 
 
-# ================= PIPELINE =================
-
 def process_channel(name, channel_id):
     print(f"\nCanal: {name}")
 
@@ -211,8 +208,6 @@ def process_channel(name, channel_id):
 
     print(f"{len(df)} comentários salvos em {output_path}")
 
-
-# ================= MAIN =================
 
 if __name__ == "__main__":
     for name, channel_id in CHANNEL_IDS.items():
