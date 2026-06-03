@@ -1,0 +1,85 @@
+{
+  "task": "aspects",
+  "n_total": 1734,
+  "label_distribution": {
+    "RELIGION": 94,
+    "POLITICS": 123,
+    "GENDER_DENIAL": 313,
+    "HARRASSMENT": 163,
+    "THREATENING": 13,
+    "PSEUDOSCIENCE": 44
+  },
+  "pos_weights": {
+    "RELIGION": 17.4468085106383,
+    "POLITICS": 13.097560975609756,
+    "GENDER_DENIAL": 4.539936102236422,
+    "HARRASSMENT": 9.63803680981595,
+    "THREATENING": 132.3846153846154,
+    "PSEUDOSCIENCE": 38.40909090909091
+  },
+  "split_sizes": {
+    "train": 1213,
+    "val": 174,
+    "test": 347
+  },
+  "train_distribution": {
+    "RELIGION": 66,
+    "POLITICS": 86,
+    "GENDER_DENIAL": 219,
+    "HARRASSMENT": 114,
+    "THREATENING": 9,
+    "PSEUDOSCIENCE": 31
+  },
+  "val_distribution": {
+    "RELIGION": 9,
+    "POLITICS": 12,
+    "GENDER_DENIAL": 31,
+    "HARRASSMENT": 16,
+    "THREATENING": 1,
+    "PSEUDOSCIENCE": 4
+  },
+  "test_distribution": {
+    "RELIGION": 19,
+    "POLITICS": 25,
+    "GENDER_DENIAL": 63,
+    "HARRASSMENT": 33,
+    "THREATENING": 3,
+    "PSEUDOSCIENCE": 9
+  },
+  "num_positive_labels_distribution": {
+    "all": {
+      "0": 1152,
+      "1": 434,
+      "2": 129,
+      "3": 18,
+      "4": 1
+    },
+    "train": {
+      "0": 806,
+      "1": 303,
+      "2": 91,
+      "3": 12,
+      "4": 1
+    },
+    "val": {
+      "0": 116,
+      "1": 45,
+      "2": 11,
+      "3": 2
+    },
+    "test": {
+      "0": 230,
+      "1": 86,
+      "2": 27,
+      "3": 4
+    }
+  },
+  "label_order": [
+    "RELIGION",
+    "POLITICS",
+    "GENDER_DENIAL",
+    "HARRASSMENT",
+    "THREATENING",
+    "PSEUDOSCIENCE"
+  ]
+}

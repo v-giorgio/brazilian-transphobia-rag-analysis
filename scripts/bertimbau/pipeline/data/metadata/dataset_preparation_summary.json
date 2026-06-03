@@ -1,0 +1,23 @@
+{
+  "input_path": "./data/dataset_final.csv",
+  "n_input_rows": 1734,
+  "n_after_optional_filters": 1734,
+  "n_clean_rows": 1734,
+  "test_size": 0.2,
+  "val_size": 0.1,
+  "random_state": 42,
+  "text_template": "[TÍTULO] {video_title} [COMENTÁRIO] {comment}",
+  "tasks": [
+    "speech",
+    "offensive",
+    "aspects"
+  ],
+  "scientific_choices": {
+    "speech_offensive_split": "stratified random split",
+    "aspects_split": "iterative stratification for multilabel",
+    "imbalance_metadata": [
+      "class weights for single-label tasks",
+      "pos_weight for multilabel task"
+    ]
+  }
+}

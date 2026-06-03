@@ -1,0 +1,33 @@
+{
+  "task": "offensive",
+  "n_total": 1734,
+  "class_distribution": {
+    "NON_OFFENSIVE": 1570,
+    "OFFENSIVE": 164
+  },
+  "class_weights": {
+    "NON_OFFENSIVE": 0.5522292993630573,
+    "OFFENSIVE": 5.286585365853658
+  },
+  "split_sizes": {
+    "train": 1213,
+    "val": 174,
+    "test": 347
+  },
+  "train_distribution": {
+    "NON_OFFENSIVE": 1098,
+    "OFFENSIVE": 115
+  },
+  "val_distribution": {
+    "NON_OFFENSIVE": 158,
+    "OFFENSIVE": 16
+  },
+  "test_distribution": {
+    "NON_OFFENSIVE": 314,
+    "OFFENSIVE": 33
+  },
+  "label_map": {
+    "NON_OFFENSIVE": 0,
+    "OFFENSIVE": 1
+  }
+}
