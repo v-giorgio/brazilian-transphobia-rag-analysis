@@ -13,16 +13,18 @@ import torch
 # =========================
 
 CSV_PATH = "./data/transcriptions/video_transcriptions_filtered.csv"
-INDEX_PATH = "./data/base/faiss_index.bin"
-METADATA_PATH = "./data/base/metadata.json"
+INDEX_PATH = "./data/transcriptions/base/faiss_index.bin"
+METADATA_PATH = "./data/transcriptions/base/metadata.json"
 
 # https://huggingface.co/intfloat/multilingual-e5-large-instruct
-EMBEDDING_MODEL = "intfloat/multilingual-e5-large-instruct"
+# "intfloat/multilingual-e5-large-instruct"
+# EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+EMBEDDING_MODEL = "BAAI/bge-m3"
 
-SIM_THRESHOLD = 0.38
+SIM_THRESHOLD = 0.50
 MAX_TOKENS = 350
 MIN_CHUNK_TOKENS = 80
-BATCH_SIZE = 16
+BATCH_SIZE = 64
 
 DEVICE = "cpu"  # CPU é estável para indexação offline
 
@@ -49,7 +51,7 @@ def split_sentences(text):
 
 
 def count_tokens(text):
-    return len(model.tokenizer(text)["input_ids"])
+    return len(model.tokenizer.encode(text, add_special_tokens=True))
 
 
 def cosine_sim(a, b):
@@ -76,7 +78,7 @@ def build_semantic_chunks(sentences, sentence_embeddings):
         token_count = count_tokens(current_text)
 
         if sim >= SIM_THRESHOLD and token_count < MAX_TOKENS:
-            current_chunk.append(sentence)
+            current_chunk.append(sentence) 
             current_embeddings.append(emb)
         else:
             final_text = " ".join(current_chunk)
@@ -121,10 +123,11 @@ for _, row in tqdm(df.iterrows(), total=len(df)):
         continue
 
     # Prefixo obrigatório para E5-instruct
-    sentences_prefixed = [f"passage: {s}" for s in sentences]
+    # sentences_prefixed = [f"passage: {s}" for s in sentences]
 
     sentence_embeddings = model.encode(
-        sentences_prefixed,
+        # sentences_prefixed,
+        sentences,
         normalize_embeddings=True,
         batch_size=BATCH_SIZE,
         show_progress_bar=False
@@ -135,10 +138,12 @@ for _, row in tqdm(df.iterrows(), total=len(df)):
     if len(chunks) == 0:
         continue
 
-    chunks_prefixed = [f"passage: {c}" for c in chunks]
+    # Prefixo obrigatório para E5-instruct
+    # chunks_prefixed = [f"passage: {c}" for c in chunks]
 
     chunk_embeddings = model.encode(
-        chunks_prefixed,
+        # chunks_prefixed,
+        chunks,
         normalize_embeddings=True,
         batch_size=BATCH_SIZE,
         show_progress_bar=False

@@ -9,3 +9,14 @@ node_modules/
 **/bertimbau/pipeline/data/**/*.csv
 **/bertimbau/pipeline/models/
 **/bertimbau/pipeline/outputs/**/*_predictions.csv
+
+# metrics
+**/metrics/wtag/**
+
+# rag retrieval
+scripts/rag/docs/data/
+scripts/rag/docs/transcriptions/
+scripts/rag/docs/**/*.bin
+scripts/rag/docs/**/*.webm
+scripts/rag/docs/**/*backup*
+scripts/rag/docs/**/*copy*

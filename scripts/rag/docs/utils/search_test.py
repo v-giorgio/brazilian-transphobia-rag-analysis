@@ -8,8 +8,8 @@ import torch
 # CONFIG
 # =========================
 
-INDEX_PATH = "./data/base/faiss_index.bin"
-METADATA_PATH = "./data/base/metadata.json"
+INDEX_PATH = "../data/base/faiss_index.bin"
+METADATA_PATH = "../data/base/metadata.json"
 MODEL_NAME = "intfloat/multilingual-e5-large-instruct"
 DEVICE = "cpu"
 
