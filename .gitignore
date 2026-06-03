@@ -2,3 +2,10 @@ __pycache__
 **/venv/
 .env
 node_modules/
+**/*(deprec)*
+
+# bertimbau
+**/bertimbau/data/
+**/bertimbau/pipeline/data/**/*.csv
+**/bertimbau/pipeline/models/
+**/bertimbau/pipeline/outputs/**/*_predictions.csv
