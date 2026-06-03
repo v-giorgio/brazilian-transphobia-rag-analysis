@@ -1,0 +1,6 @@
+-r requirements-core.txt
+
+scikit-learn
+matplotlib
+datasets
+ragas

@@ -1,0 +1,9 @@
+-r requirements-core.txt
+-r requirements-llm.txt
+
+sentence-transformers
+faiss-cpu
+rank_bm25
+langchain_core
+langchain_community
+scikit-learn

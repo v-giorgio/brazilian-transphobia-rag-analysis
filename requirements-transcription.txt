@@ -1,0 +1,4 @@
+-r requirements-core.txt
+
+yt-dlp
+openai-whisper

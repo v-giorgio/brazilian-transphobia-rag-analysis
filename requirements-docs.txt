@@ -1,0 +1,7 @@
+-r requirements-core.txt
+-r requirements-rag.txt
+
+beautifulsoup4
+spacy
+nltk
+rake-nltk

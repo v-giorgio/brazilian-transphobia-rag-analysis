@@ -1,0 +1,7 @@
+-r requirements-core.txt
+-r requirements-llm.txt
+-r requirements-rag.txt
+-r requirements-docs.txt
+-r requirements-transcription.txt
+-r requirements-bertimbau.txt
+-r requirements-eval.txt
