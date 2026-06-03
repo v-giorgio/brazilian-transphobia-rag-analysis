@@ -1,0 +1,140 @@
+{
+  "f1_micro": 0.3227848101265823,
+  "f1_macro": 0.32905519828596747,
+  "precision_micro": 0.20987654320987653,
+  "precision_macro": 0.2572352285395763,
+  "recall_micro": 0.6986301369863014,
+  "recall_macro": 0.5197505973715651,
+  "hamming_loss": 0.2049808429118774,
+  "f1_religion": 0.6363636363636364,
+  "precision_religion": 0.5384615384615384,
+  "recall_religion": 0.7777777777777778,
+  "support_religion": 9,
+  "f1_politics": 0.16216216216216217,
+  "precision_politics": 0.12,
+  "recall_politics": 0.25,
+  "support_politics": 12,
+  "f1_gender_denial": 0.33136094674556216,
+  "precision_gender_denial": 0.2028985507246377,
+  "recall_gender_denial": 0.9032258064516129,
+  "support_gender_denial": 31,
+  "f1_harrassment": 0.4,
+  "precision_harrassment": 0.28205128205128205,
+  "recall_harrassment": 0.6875,
+  "support_harrassment": 16,
+  "f1_threatening": 0.0,
+  "precision_threatening": 0.0,
+  "recall_threatening": 0.0,
+  "support_threatening": 1,
+  "f1_pseudoscience": 0.4444444444444444,
+  "precision_pseudoscience": 0.4,
+  "recall_pseudoscience": 0.5,
+  "support_pseudoscience": 4,
+  "confusion_matrix_by_label": {
+    "RELIGION": {
+      "tn": 159,
+      "fp": 6,
+      "fn": 2,
+      "tp": 7,
+      "matrix": [
+        [
+          159,
+          6
+        ],
+        [
+          2,
+          7
+        ]
+      ]
+    },
+    "POLITICS": {
+      "tn": 140,
+      "fp": 22,
+      "fn": 9,
+      "tp": 3,
+      "matrix": [
+        [
+          140,
+          22
+        ],
+        [
+          9,
+          3
+        ]
+      ]
+    },
+    "GENDER_DENIAL": {
+      "tn": 33,
+      "fp": 110,
+      "fn": 3,
+      "tp": 28,
+      "matrix": [
+        [
+          33,
+          110
+        ],
+        [
+          3,
+          28
+        ]
+      ]
+    },
+    "HARRASSMENT": {
+      "tn": 130,
+      "fp": 28,
+      "fn": 5,
+      "tp": 11,
+      "matrix": [
+        [
+          130,
+          28
+        ],
+        [
+          5,
+          11
+        ]
+      ]
+    },
+    "THREATENING": {
+      "tn": 150,
+      "fp": 23,
+      "fn": 1,
+      "tp": 0,
+      "matrix": [
+        [
+          150,
+          23
+        ],
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "PSEUDOSCIENCE": {
+      "tn": 167,
+      "fp": 3,
+      "fn": 2,
+      "tp": 2,
+      "matrix": [
+        [
+          167,
+          3
+        ],
+        [
+          2,
+          2
+        ]
+      ]
+    }
+  },
+  "decision_thresholds": {
+    "RELIGION": 0.12,
+    "POLITICS": 0.09,
+    "GENDER_DENIAL": 0.11,
+    "HARRASSMENT": 0.11,
+    "THREATENING": 0.01,
+    "PSEUDOSCIENCE": 0.07
+  },
+  "threshold_metric": "per_label_f1"
+}

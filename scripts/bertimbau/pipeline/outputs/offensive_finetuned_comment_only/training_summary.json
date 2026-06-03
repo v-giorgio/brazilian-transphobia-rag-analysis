@@ -1,0 +1,46 @@
+{
+  "model_name": "neuralmind/bert-base-portuguese-cased",
+  "task": "offensive",
+  "input_format": "comment_only",
+  "text_column": "comment",
+  "title_column": null,
+  "model_dir": "pipeline\\models\\offensive_finetuned_comment_only",
+  "output_dir": "pipeline\\outputs\\offensive_finetuned_comment_only",
+  "max_length": 256,
+  "learning_rate": 2e-05,
+  "train_batch_size": 16,
+  "eval_batch_size": 16,
+  "num_epochs": 5.0,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "seed": 42,
+  "class_weight_mode": "balanced",
+  "custom_class_weights": null,
+  "class_weights": {
+    "NON_OFFENSIVE": 0.5522292852401733,
+    "OFFENSIVE": 5.286585330963135
+  },
+  "n_train": 1213,
+  "n_val": 174,
+  "n_test": 347,
+  "best_metric": "f1_macro",
+  "train_runtime_seconds": 727.6126,
+  "total_script_runtime_seconds": 776.735245,
+  "val_prediction_files": {
+    "predictions_path": "pipeline\\outputs\\offensive_finetuned_comment_only/val_predictions.csv",
+    "metrics_path": "pipeline\\outputs\\offensive_finetuned_comment_only/metrics_val_predictions.json"
+  },
+  "test_prediction_files": {
+    "predictions_path": "pipeline\\outputs\\offensive_finetuned_comment_only/test_predictions.csv",
+    "metrics_path": "pipeline\\outputs\\offensive_finetuned_comment_only/metrics_test_predictions.json"
+  },
+  "device_report": {
+    "torch_version": "2.11.0+cpu",
+    "cuda_available": false,
+    "cuda_device_count": 0,
+    "device": "cpu",
+    "device_name": null,
+    "cuda_version": null,
+    "hip_version": null
+  }
+}

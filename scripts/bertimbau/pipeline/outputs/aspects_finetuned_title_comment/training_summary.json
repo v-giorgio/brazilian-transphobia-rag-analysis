@@ -1,0 +1,46 @@
+{
+  "model_name": "neuralmind/bert-base-portuguese-cased",
+  "task": "aspects",
+  "input_format": "title_comment",
+  "label_order": [
+    "RELIGION",
+    "POLITICS",
+    "GENDER_DENIAL",
+    "HARRASSMENT",
+    "THREATENING",
+    "PSEUDOSCIENCE"
+  ],
+  "text_column": "comment",
+  "title_column": "video_title",
+  "model_dir": "pipeline\\models\\aspects_finetuned_title_comment",
+  "output_dir": "pipeline\\outputs\\aspects_finetuned_title_comment",
+  "max_length": 256,
+  "learning_rate": 2e-05,
+  "train_batch_size": 16,
+  "eval_batch_size": 16,
+  "num_epochs": 5.0,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "seed": 42,
+  "default_threshold": 0.5,
+  "per_label_thresholds": {
+    "RELIGION": 0.28,
+    "POLITICS": 0.53,
+    "GENDER_DENIAL": 0.54,
+    "HARRASSMENT": 0.57,
+    "THREATENING": 0.17,
+    "PSEUDOSCIENCE": 0.7
+  },
+  "pos_weight": {
+    "RELIGION": 17.446807861328125,
+    "POLITICS": 13.09756088256836,
+    "GENDER_DENIAL": 4.539936065673828,
+    "HARRASSMENT": 9.638036727905273,
+    "THREATENING": 132.38461303710938,
+    "PSEUDOSCIENCE": 38.40909194946289
+  },
+  "n_train": 1213,
+  "n_val": 174,
+  "n_test": 347,
+  "best_metric": "macro_f1"
+}

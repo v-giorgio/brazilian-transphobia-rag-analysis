@@ -1,0 +1,15 @@
+{
+  "task": "speech",
+  "model_name": "neuralmind/bert-base-portuguese-cased",
+  "input_format": "title_comment",
+  "max_length": 256,
+  "batch_size": 32,
+  "seed": 42,
+  "classifier": "Calibrated LinearSVC",
+  "bertimbau_trainable": false,
+  "train_path": "pipeline\\data\\speech\\train.csv",
+  "val_path": "pipeline\\data\\speech\\val.csv",
+  "test_path": "pipeline\\data\\speech\\test.csv",
+  "output_dir": "pipeline\\outputs\\speech_frozen_title_comment",
+  "model_dir": "pipeline\\models\\speech_frozen_title_comment"
+}

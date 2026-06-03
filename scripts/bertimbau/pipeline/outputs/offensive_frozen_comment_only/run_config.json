@@ -1,0 +1,15 @@
+{
+  "task": "offensive",
+  "model_name": "neuralmind/bert-base-portuguese-cased",
+  "input_format": "comment_only",
+  "max_length": 256,
+  "batch_size": 32,
+  "seed": 42,
+  "classifier": "Calibrated LinearSVC",
+  "bertimbau_trainable": false,
+  "train_path": "pipeline\\data\\offensive\\train.csv",
+  "val_path": "pipeline\\data\\offensive\\val.csv",
+  "test_path": "pipeline\\data\\offensive\\test.csv",
+  "output_dir": "pipeline\\outputs\\offensive_frozen_comment_only",
+  "model_dir": "pipeline\\models\\offensive_frozen_comment_only"
+}

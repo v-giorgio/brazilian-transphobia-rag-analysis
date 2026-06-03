@@ -1,0 +1,47 @@
+{
+  "model_name": "neuralmind/bert-base-portuguese-cased",
+  "task": "speech",
+  "input_format": "title_comment",
+  "text_column": "comment",
+  "title_column": "video_title",
+  "model_dir": "pipeline\\models\\speech_finetuned_title_comment",
+  "output_dir": "pipeline\\outputs\\speech_finetuned_title_comment",
+  "max_length": 256,
+  "learning_rate": 2e-05,
+  "train_batch_size": 16,
+  "eval_batch_size": 16,
+  "num_epochs": 5.0,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "seed": 42,
+  "class_weight_mode": "balanced",
+  "custom_class_weights": null,
+  "class_weights": {
+    "HATEFUL": 0.7686170339584351,
+    "SUPPORTIVE": 2.125,
+    "NEUTRAL": 0.814084529876709
+  },
+  "n_train": 1213,
+  "n_val": 174,
+  "n_test": 347,
+  "best_metric": "f1_macro",
+  "train_runtime_seconds": 858.1034,
+  "total_script_runtime_seconds": 892.488847,
+  "val_prediction_files": {
+    "predictions_path": "pipeline\\outputs\\speech_finetuned_title_comment/val_predictions.csv",
+    "metrics_path": "pipeline\\outputs\\speech_finetuned_title_comment/metrics_val_predictions.json"
+  },
+  "test_prediction_files": {
+    "predictions_path": "pipeline\\outputs\\speech_finetuned_title_comment/test_predictions.csv",
+    "metrics_path": "pipeline\\outputs\\speech_finetuned_title_comment/metrics_test_predictions.json"
+  },
+  "device_report": {
+    "torch_version": "2.11.0+cpu",
+    "cuda_available": false,
+    "cuda_device_count": 0,
+    "device": "cpu",
+    "device_name": null,
+    "cuda_version": null,
+    "hip_version": null
+  }
+}
