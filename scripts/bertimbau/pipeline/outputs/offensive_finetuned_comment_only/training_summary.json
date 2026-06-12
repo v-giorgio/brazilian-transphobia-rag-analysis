@@ -17,15 +17,15 @@
   "class_weight_mode": "balanced",
   "custom_class_weights": null,
   "class_weights": {
-    "NON_OFFENSIVE": 0.5522292852401733,
-    "OFFENSIVE": 5.286585330963135
+    "NON_OFFENSIVE": 0.5520516633987427,
+    "OFFENSIVE": 5.302919864654541
   },
-  "n_train": 1213,
-  "n_val": 174,
-  "n_test": 347,
+  "n_train": 1016,
+  "n_val": 146,
+  "n_test": 291,
   "best_metric": "f1_macro",
-  "train_runtime_seconds": 727.6126,
-  "total_script_runtime_seconds": 776.735245,
+  "train_runtime_seconds": 745.6481,
+  "total_script_runtime_seconds": 788.516565,
   "val_prediction_files": {
     "predictions_path": "pipeline\\outputs\\offensive_finetuned_comment_only/val_predictions.csv",
     "metrics_path": "pipeline\\outputs\\offensive_finetuned_comment_only/metrics_val_predictions.json"

@@ -18,29 +18,29 @@
   "learning_rate": 2e-05,
   "train_batch_size": 16,
   "eval_batch_size": 16,
-  "num_epochs": 6,
+  "num_epochs": 5.0,
   "weight_decay": 0.01,
   "warmup_ratio": 0.1,
   "seed": 42,
   "default_threshold": 0.5,
   "per_label_thresholds": {
-    "RELIGION": 0.45,
-    "POLITICS": 0.66,
-    "GENDER_DENIAL": 0.51,
-    "HARRASSMENT": 0.57,
-    "THREATENING": 0.11,
-    "PSEUDOSCIENCE": 0.68
+    "RELIGION": 0.58,
+    "POLITICS": 0.49,
+    "GENDER_DENIAL": 0.49,
+    "HARRASSMENT": 0.44,
+    "THREATENING": 0.21,
+    "PSEUDOSCIENCE": 0.49
   },
   "pos_weight": {
-    "RELIGION": 17.446807861328125,
-    "POLITICS": 13.09756088256836,
-    "GENDER_DENIAL": 4.539936065673828,
-    "HARRASSMENT": 9.638036727905273,
-    "THREATENING": 132.38461303710938,
-    "PSEUDOSCIENCE": 38.40909194946289
+    "RELIGION": 18.11842155456543,
+    "POLITICS": 15.144444465637207,
+    "GENDER_DENIAL": 4.811999797821045,
+    "HARRASSMENT": 14.967033386230469,
+    "THREATENING": 120.08333587646484,
+    "PSEUDOSCIENCE": 38.27027130126953
   },
-  "n_train": 1213,
-  "n_val": 174,
-  "n_test": 347,
+  "n_train": 1016,
+  "n_val": 146,
+  "n_test": 291,
   "best_metric": "macro_f1"
 }

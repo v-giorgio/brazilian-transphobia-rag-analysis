@@ -1,27 +1,27 @@
 {
-  "accuracy": 0.8620689655172413,
-  "balanced_accuracy": 0.6712816455696202,
-  "precision_macro": 0.6294856459330144,
-  "recall_macro": 0.6712816455696202,
-  "f1_macro": 0.6455008488964347,
+  "accuracy": 0.8904109589041096,
+  "balanced_accuracy": 0.6520562770562771,
+  "precision_macro": 0.6747512437810945,
+  "recall_macro": 0.6520562770562771,
+  "f1_macro": 0.6622325043377675,
   "confusion_matrix": [
     [
-      143,
-      15
+      125,
+      7
     ],
     [
       9,
-      7
+      5
     ]
   ],
-  "precision_non_offensive": 0.9407894736842105,
-  "recall_non_offensive": 0.9050632911392406,
-  "f1_non_offensive": 0.9225806451612903,
-  "support_non_offensive": 158,
-  "precision_offensive": 0.3181818181818182,
-  "recall_offensive": 0.4375,
-  "f1_offensive": 0.3684210526315789,
-  "support_offensive": 16,
-  "decision_threshold": 0.15,
+  "precision_non_offensive": 0.9328358208955224,
+  "recall_non_offensive": 0.946969696969697,
+  "f1_non_offensive": 0.9398496240601504,
+  "support_non_offensive": 132,
+  "precision_offensive": 0.4166666666666667,
+  "recall_offensive": 0.35714285714285715,
+  "f1_offensive": 0.38461538461538464,
+  "support_offensive": 14,
+  "decision_threshold": 0.19,
   "threshold_metric": "macro_f1"
 }

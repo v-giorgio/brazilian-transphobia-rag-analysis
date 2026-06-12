@@ -15,7 +15,7 @@ Saídas padrão:
   ./pipeline/models/speech_<input_format>/
   ./pipeline/outputs/speech_<input_format>/
 
-python train_bertimbau_speech_v2.py \
+python 3_train_bertimbau_speech_v2.py \
 --input-format comment_only \
 --learning-rate 2e-5 \
 --num-epochs 5 \
@@ -23,7 +23,7 @@ python train_bertimbau_speech_v2.py \
 --eval-batch-size 16 \
 --class-weight-mode balanced
 
-python train_bertimbau_speech_v2.py \
+python 3_train_bertimbau_speech_v2.py \
   --input-format title_comment \
   --learning-rate 2e-5 \
   --num-epochs 5 \

@@ -1,77 +1,77 @@
 {
   "task": "aspects",
-  "n_total": 1734,
+  "n_total": 1453,
   "label_distribution": {
-    "RELIGION": 94,
-    "POLITICS": 123,
-    "GENDER_DENIAL": 313,
-    "HARRASSMENT": 163,
-    "THREATENING": 13,
-    "PSEUDOSCIENCE": 44
+    "RELIGION": 76,
+    "POLITICS": 90,
+    "GENDER_DENIAL": 250,
+    "HARRASSMENT": 91,
+    "THREATENING": 12,
+    "PSEUDOSCIENCE": 37
   },
   "pos_weights": {
-    "RELIGION": 17.4468085106383,
-    "POLITICS": 13.097560975609756,
-    "GENDER_DENIAL": 4.539936102236422,
-    "HARRASSMENT": 9.63803680981595,
-    "THREATENING": 132.3846153846154,
-    "PSEUDOSCIENCE": 38.40909090909091
+    "RELIGION": 18.11842105263158,
+    "POLITICS": 15.144444444444444,
+    "GENDER_DENIAL": 4.812,
+    "HARRASSMENT": 14.967032967032967,
+    "THREATENING": 120.08333333333333,
+    "PSEUDOSCIENCE": 38.270270270270274
   },
   "split_sizes": {
-    "train": 1213,
-    "val": 174,
-    "test": 347
+    "train": 1016,
+    "val": 146,
+    "test": 291
   },
   "train_distribution": {
-    "RELIGION": 66,
-    "POLITICS": 86,
-    "GENDER_DENIAL": 219,
-    "HARRASSMENT": 114,
+    "RELIGION": 53,
+    "POLITICS": 63,
+    "GENDER_DENIAL": 175,
+    "HARRASSMENT": 64,
     "THREATENING": 9,
-    "PSEUDOSCIENCE": 31
+    "PSEUDOSCIENCE": 26
   },
   "val_distribution": {
-    "RELIGION": 9,
-    "POLITICS": 12,
-    "GENDER_DENIAL": 31,
-    "HARRASSMENT": 16,
+    "RELIGION": 8,
+    "POLITICS": 9,
+    "GENDER_DENIAL": 25,
+    "HARRASSMENT": 9,
     "THREATENING": 1,
     "PSEUDOSCIENCE": 4
   },
   "test_distribution": {
-    "RELIGION": 19,
-    "POLITICS": 25,
-    "GENDER_DENIAL": 63,
-    "HARRASSMENT": 33,
-    "THREATENING": 3,
-    "PSEUDOSCIENCE": 9
+    "RELIGION": 15,
+    "POLITICS": 18,
+    "GENDER_DENIAL": 50,
+    "HARRASSMENT": 18,
+    "THREATENING": 2,
+    "PSEUDOSCIENCE": 7
   },
   "num_positive_labels_distribution": {
     "all": {
-      "0": 1152,
-      "1": 434,
-      "2": 129,
-      "3": 18,
+      "0": 1010,
+      "1": 341,
+      "2": 92,
+      "3": 9,
       "4": 1
     },
     "train": {
-      "0": 806,
-      "1": 303,
-      "2": 91,
-      "3": 12,
-      "4": 1
+      "0": 703,
+      "1": 242,
+      "2": 65,
+      "3": 6
     },
     "val": {
-      "0": 116,
-      "1": 45,
-      "2": 11,
-      "3": 2
+      "0": 104,
+      "1": 29,
+      "2": 12,
+      "3": 1
     },
     "test": {
-      "0": 230,
-      "1": 86,
-      "2": 27,
-      "3": 4
+      "0": 203,
+      "1": 70,
+      "2": 15,
+      "3": 2,
+      "4": 1
     }
   },
   "label_order": [

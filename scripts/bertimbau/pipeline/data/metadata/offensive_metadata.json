@@ -1,30 +1,30 @@
 {
   "task": "offensive",
-  "n_total": 1734,
+  "n_total": 1453,
   "class_distribution": {
-    "NON_OFFENSIVE": 1570,
-    "OFFENSIVE": 164
+    "NON_OFFENSIVE": 1316,
+    "OFFENSIVE": 137
   },
   "class_weights": {
-    "NON_OFFENSIVE": 0.5522292993630573,
-    "OFFENSIVE": 5.286585365853658
+    "NON_OFFENSIVE": 0.5520516717325228,
+    "OFFENSIVE": 5.302919708029197
   },
   "split_sizes": {
-    "train": 1213,
-    "val": 174,
-    "test": 347
+    "train": 1016,
+    "val": 146,
+    "test": 291
   },
   "train_distribution": {
-    "NON_OFFENSIVE": 1098,
-    "OFFENSIVE": 115
+    "NON_OFFENSIVE": 920,
+    "OFFENSIVE": 96
   },
   "val_distribution": {
-    "NON_OFFENSIVE": 158,
-    "OFFENSIVE": 16
+    "NON_OFFENSIVE": 132,
+    "OFFENSIVE": 14
   },
   "test_distribution": {
-    "NON_OFFENSIVE": 314,
-    "OFFENSIVE": 33
+    "NON_OFFENSIVE": 264,
+    "OFFENSIVE": 27
   },
   "label_map": {
     "NON_OFFENSIVE": 0,

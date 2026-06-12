@@ -24,23 +24,23 @@
   "seed": 42,
   "default_threshold": 0.5,
   "per_label_thresholds": {
-    "RELIGION": 0.28,
-    "POLITICS": 0.53,
-    "GENDER_DENIAL": 0.54,
-    "HARRASSMENT": 0.57,
-    "THREATENING": 0.17,
-    "PSEUDOSCIENCE": 0.7
+    "RELIGION": 0.67,
+    "POLITICS": 0.63,
+    "GENDER_DENIAL": 0.71,
+    "HARRASSMENT": 0.59,
+    "THREATENING": 0.19,
+    "PSEUDOSCIENCE": 0.68
   },
   "pos_weight": {
-    "RELIGION": 17.446807861328125,
-    "POLITICS": 13.09756088256836,
-    "GENDER_DENIAL": 4.539936065673828,
-    "HARRASSMENT": 9.638036727905273,
-    "THREATENING": 132.38461303710938,
-    "PSEUDOSCIENCE": 38.40909194946289
+    "RELIGION": 18.11842155456543,
+    "POLITICS": 15.144444465637207,
+    "GENDER_DENIAL": 4.811999797821045,
+    "HARRASSMENT": 14.967033386230469,
+    "THREATENING": 120.08333587646484,
+    "PSEUDOSCIENCE": 38.27027130126953
   },
-  "n_train": 1213,
-  "n_val": 174,
-  "n_test": 347,
+  "n_train": 1016,
+  "n_val": 146,
+  "n_test": 291,
   "best_metric": "macro_f1"
 }

@@ -17,16 +17,16 @@
   "class_weight_mode": "balanced",
   "custom_class_weights": null,
   "class_weights": {
-    "HATEFUL": 0.7686170339584351,
-    "SUPPORTIVE": 2.125,
-    "NEUTRAL": 0.814084529876709
+    "HATEFUL": 0.8085698485374451,
+    "SUPPORTIVE": 1.7548309564590454,
+    "NEUTRAL": 0.8379469513893127
   },
-  "n_train": 1213,
-  "n_val": 174,
-  "n_test": 347,
+  "n_train": 1016,
+  "n_val": 146,
+  "n_test": 291,
   "best_metric": "f1_macro",
-  "train_runtime_seconds": 858.1034,
-  "total_script_runtime_seconds": 892.488847,
+  "train_runtime_seconds": 1177.0754,
+  "total_script_runtime_seconds": 1232.859299,
   "val_prediction_files": {
     "predictions_path": "pipeline\\outputs\\speech_finetuned_title_comment/val_predictions.csv",
     "metrics_path": "pipeline\\outputs\\speech_finetuned_title_comment/metrics_val_predictions.json"

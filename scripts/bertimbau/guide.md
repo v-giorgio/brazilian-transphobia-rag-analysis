@@ -54,22 +54,22 @@ python 2_train_bertimbau_frozen_baseline.py --task aspects --input-format title_
 Treina BERTimbau para `speech_class` (`HATEFUL`, `SUPPORTIVE`, `NEUTRAL`).
 
 ```bash
-python 3_train_bertimbau_speech_v2.py `
-  --input-format comment_only `
-  --learning-rate 2e-5 `
-  --num-epochs 5 `
-  --train-batch-size 16 `
-  --eval-batch-size 16 `
+python 3_train_bertimbau_speech_v2.py \
+  --input-format comment_only \
+  --learning-rate 2e-5 \
+  --num-epochs 5 \
+  --train-batch-size 16 \
+  --eval-batch-size 16 \
   --class-weight-mode balanced
 ```
 
 ```bash
-python 3_train_bertimbau_speech_v2.py `
-  --input-format title_comment `
-  --learning-rate 2e-5 `
-  --num-epochs 5 `
-  --train-batch-size 16 `
-  --eval-batch-size 16 `
+python 3_train_bertimbau_speech_v2.py \
+  --input-format title_comment \
+  --learning-rate 2e-5 \
+  --num-epochs 5 \
+  --train-batch-size 16 \
+  --eval-batch-size 16 \
   --class-weight-mode balanced
 ```
 
@@ -78,22 +78,22 @@ python 3_train_bertimbau_speech_v2.py `
 Treina BERTimbau para `offensive_class` (`OFFENSIVE`, `NON_OFFENSIVE`).
 
 ```bash
-python 4_train_bertimbau_offensive_v3.py `
-  --input-format comment_only `
-  --learning-rate 2e-5 `
-  --num-epochs 5 `
-  --train-batch-size 16 `
-  --eval-batch-size 16 `
+python 4_train_bertimbau_offensive_v3.py \
+  --input-format comment_only \
+  --learning-rate 2e-5 \
+  --num-epochs 5 \
+  --train-batch-size 16 \
+  --eval-batch-size 16 \
   --class-weight-mode balanced
 ```
 
 ```bash
-python 4_train_bertimbau_offensive_v3.py `
-  --input-format title_comment `
-  --learning-rate 2e-5 `
-  --num-epochs 5 `
-  --train-batch-size 16 `
-  --eval-batch-size 16 `
+python 4_train_bertimbau_offensive_v3.py \
+  --input-format title_comment \
+  --learning-rate 2e-5 \
+  --num-epochs 5 \
+  --train-batch-size 16 \
+  --eval-batch-size 16 \
   --class-weight-mode balanced
 ```
 
@@ -103,20 +103,20 @@ Treina BERTimbau para `aspects`, uma tarefa multi-label. Os thresholds são
 calibrados por rótulo no conjunto de validação.
 
 ```bash
-python 5_train_bertimbau_aspects_v3.py `
-  --input-format comment_only `
-  --learning-rate 2e-5 `
-  --num-epochs 5 `
-  --train-batch-size 16 `
+python 5_train_bertimbau_aspects_v3.py \
+  --input-format comment_only \
+  --learning-rate 2e-5 \
+  --num-epochs 5 \
+  --train-batch-size 16 \
   --eval-batch-size 16
 ```
 
 ```bash
-python 5_train_bertimbau_aspects_v3.py `
-  --input-format title_comment `
-  --learning-rate 2e-5 `
-  --num-epochs 5 `
-  --train-batch-size 16 `
+python 5_train_bertimbau_aspects_v3.py \
+  --input-format title_comment \
+  --learning-rate 2e-5 \
+  --num-epochs 5 \
+  --train-batch-size 16 \
   --eval-batch-size 16
 ```
 

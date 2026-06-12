@@ -1,8 +1,8 @@
 {
   "input_path": "./data/dataset_final.csv",
-  "n_input_rows": 1734,
-  "n_after_optional_filters": 1734,
-  "n_clean_rows": 1734,
+  "n_input_rows": 1453,
+  "n_after_optional_filters": 1453,
+  "n_clean_rows": 1453,
   "test_size": 0.2,
   "val_size": 0.1,
   "random_state": 42,

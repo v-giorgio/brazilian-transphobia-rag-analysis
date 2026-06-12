@@ -1,35 +1,35 @@
 {
   "task": "speech",
-  "n_total": 1734,
+  "n_total": 1453,
   "class_distribution": {
-    "HATEFUL": 752,
-    "NEUTRAL": 710,
-    "SUPPORTIVE": 272
+    "HATEFUL": 599,
+    "NEUTRAL": 578,
+    "SUPPORTIVE": 276
   },
   "class_weights": {
-    "HATEFUL": 0.7686170212765957,
-    "NEUTRAL": 0.8140845070422535,
-    "SUPPORTIVE": 2.125
+    "HATEFUL": 0.808569838619922,
+    "NEUTRAL": 0.8379469434832757,
+    "SUPPORTIVE": 1.7548309178743962
   },
   "split_sizes": {
-    "train": 1213,
-    "val": 174,
-    "test": 347
+    "train": 1016,
+    "val": 146,
+    "test": 291
   },
   "train_distribution": {
-    "HATEFUL": 525,
-    "NEUTRAL": 497,
-    "SUPPORTIVE": 191
+    "HATEFUL": 419,
+    "NEUTRAL": 404,
+    "SUPPORTIVE": 193
   },
   "val_distribution": {
-    "HATEFUL": 76,
-    "NEUTRAL": 71,
-    "SUPPORTIVE": 27
+    "HATEFUL": 60,
+    "NEUTRAL": 58,
+    "SUPPORTIVE": 28
   },
   "test_distribution": {
-    "HATEFUL": 151,
-    "NEUTRAL": 142,
-    "SUPPORTIVE": 54
+    "HATEFUL": 120,
+    "NEUTRAL": 116,
+    "SUPPORTIVE": 55
   },
   "label_map": {
     "HATEFUL": 0,
