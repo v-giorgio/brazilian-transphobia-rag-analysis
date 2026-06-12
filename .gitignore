@@ -20,3 +20,7 @@ scripts/rag/docs/**/*.bin
 scripts/rag/docs/**/*.webm
 scripts/rag/docs/**/*backup*
 scripts/rag/docs/**/*copy*
+
+# llm
+scripts/rag/pipeline/data/
+scripts/rag/pipeline/*_explicacao.md
