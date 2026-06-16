@@ -226,12 +226,12 @@ def strategy_prediction_path(predictions_dir: str, strategy: str, task: str, mod
     model_slug = sanitize_name(model)
     folder = task_folder(task)
     if strategy == "zero_shot":
-        return str(Path(predictions_dir) / "zero_shot" / folder / f"predictions_{model_slug}.jsonl")
+        return str(Path(predictions_dir) / "zero_shot" / folder / f"predictions_{model_slug}.csv")
     if strategy == "few_shot":
-        return str(Path(predictions_dir) / "few_shot" / folder / f"predictions_{model_slug}.jsonl")
+        return str(Path(predictions_dir) / "few_shot" / folder / f"predictions_{model_slug}.csv")
     if strategy.startswith("rag_"):
         rag_mode = strategy.replace("rag_", "", 1)
-        return str(Path(predictions_dir) / "rag" / folder / f"predictions_{model_slug}_{rag_mode}.jsonl")
+        return str(Path(predictions_dir) / "rag" / folder / f"predictions_{model_slug}_{rag_mode}.csv")
     raise ValueError(f"Estrategia invalida: {strategy}")
 
 
@@ -991,14 +991,24 @@ def rebuild_overall_from_existing(by_model_dir: str, overall_dir: str, tasks: Li
             if not strategy_dir.is_dir():
                 continue
 
-            csv_files = sorted(strategy_dir.glob("*_metrics_summary.csv"))
+            legacy_summary_name = f"{model_name_safe}_{strategy_dir.name}_metrics_summary.csv"
+            csv_files = [
+                path
+                for path in sorted(strategy_dir.glob("*_metrics_summary.csv"))
+                if path.name != legacy_summary_name
+            ]
             if not csv_files:
                 continue
 
-            summary_df = pd.read_csv(csv_files[0])
+            summary_frames = []
+            for csv_file in csv_files:
+                summary_frames.append(pd.read_csv(csv_file))
+
+            summary_df = pd.concat(summary_frames, ignore_index=True)
             summary_df = summary_df[summary_df["task"].isin(tasks)].copy()
             if summary_df.empty:
                 continue
+            summary_df = summary_df.drop_duplicates(subset=["task"], keep="last")
 
             summary_df["model_name"] = model_name_safe
             summary_df["prompt_strategy"] = strategy_dir.name
@@ -1160,10 +1170,11 @@ def main():
             for prompt_strategy, strat_df in model_df.groupby("prompt_strategy"):
                 safe_strategy = sanitize_name(prompt_strategy)
                 strategy_dir = os.path.join(model_root, safe_strategy)
+                safe_task_scope = sanitize_name("_".join(file_tasks))
                 evaluate_subset(
                     strat_df,
                     strategy_dir,
-                    f"{safe_model}_{safe_strategy}",
+                    f"{safe_model}_{safe_strategy}_{safe_task_scope}",
                     file_tasks,
                     enable_ragas=args.ragas,
                     ragas_limit=args.ragas_limit,

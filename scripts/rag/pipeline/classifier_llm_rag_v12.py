@@ -233,10 +233,14 @@ def empty_prediction_output_fields(task: str) -> Dict[str, Any]:
     }
 
 
-def load_processed_ids(output_jsonl: str, id_col: str) -> set:
-    processed = set()
+def row_has_error(row: Dict[str, Any]) -> bool:
+    return bool(str(row.get("error") or "").strip())
+
+
+def load_processed_ids(output_jsonl: str, id_col: str, retry_errors: bool = False) -> set:
+    latest_by_id: Dict[str, Dict[str, Any]] = {}
     if not os.path.exists(output_jsonl):
-        return processed
+        return set()
 
     with open(output_jsonl, "r", encoding="utf-8") as f:
         for line in f:
@@ -246,10 +250,17 @@ def load_processed_ids(output_jsonl: str, id_col: str) -> set:
             try:
                 row = json.loads(line)
                 if id_col in row:
-                    processed.add(str(row[id_col]))
+                    latest_by_id[str(row[id_col])] = row
             except Exception:
                 continue
-    return processed
+
+    if retry_errors:
+        return {
+            item_id
+            for item_id, row in latest_by_id.items()
+            if not row_has_error(row)
+        }
+    return set(latest_by_id.keys())
 
 
 def create_client(api_key: str, base_url: str) -> OpenAI:
@@ -1233,14 +1244,14 @@ def default_output_paths(output_dir: str, task: str, rag_mode: str, model: str) 
 
 
 def _mean(values: List[Optional[float]]) -> Optional[float]:
-    clean = [float(v) for v in values if v is not None]
+    clean = [float(v) for v in values if v is not None and not pd.isna(v)]
     if not clean:
         return None
     return sum(clean) / len(clean)
 
 
 def _median(values: List[Optional[float]]) -> Optional[float]:
-    clean = sorted(float(v) for v in values if v is not None)
+    clean = sorted(float(v) for v in values if v is not None and not pd.isna(v))
     if not clean:
         return None
     n = len(clean)
@@ -1248,6 +1259,44 @@ def _median(values: List[Optional[float]]) -> Optional[float]:
     if n % 2 == 1:
         return clean[mid]
     return (clean[mid - 1] + clean[mid]) / 2
+
+
+def _sum(values: List[Any]) -> Optional[float]:
+    clean = [float(v) for v in values if v is not None and not pd.isna(v)]
+    if not clean:
+        return None
+    return sum(clean)
+
+
+def _round_or_none(value: Any) -> Any:
+    if value is None or pd.isna(value):
+        return None
+    return round(float(value), 6)
+
+
+def _value_or_none(value: Any) -> Any:
+    if value is None or pd.isna(value):
+        return None
+    return value
+
+
+def benchmark_rows_from_dataframe(df: pd.DataFrame, id_col: str) -> List[Dict[str, Any]]:
+    rows = []
+    if df.empty or id_col not in df.columns:
+        return rows
+
+    for _, row in df.iterrows():
+        error = row.get("error")
+        has_error = bool(str(error).strip()) if pd.notna(error) else False
+        rows.append({
+            "dataset_comment_id": str(row[id_col]),
+            "success": not has_error,
+            "retrieval_time_seconds": row.get("retrieval_time_seconds"),
+            "inference_time_seconds": row.get("inference_time_seconds"),
+            "total_time_seconds": row.get("total_time_seconds"),
+            "num_retrieved_items": _value_or_none(row.get("num_retrieved_items")),
+        })
+    return rows
 
 
 def summarize_benchmark(
@@ -1298,9 +1347,9 @@ def summarize_benchmark(
         "per_item": [
             {
                 **row,
-                "retrieval_time_seconds": round(float(row["retrieval_time_seconds"]), 6) if row.get("retrieval_time_seconds") is not None else None,
-                "inference_time_seconds": round(float(row["inference_time_seconds"]), 6) if row.get("inference_time_seconds") is not None else None,
-                "total_time_seconds": round(float(row["total_time_seconds"]), 6) if row.get("total_time_seconds") is not None else None,
+                "retrieval_time_seconds": _round_or_none(row.get("retrieval_time_seconds")),
+                "inference_time_seconds": _round_or_none(row.get("inference_time_seconds")),
+                "total_time_seconds": _round_or_none(row.get("total_time_seconds")),
             }
             for row in benchmark_rows
         ],
@@ -1354,6 +1403,12 @@ def main():
     parser.add_argument("--disable-thinking", action="store_true", default=True, help="Envia think=false para modelos compatíveis, como Qwen3.")
     parser.add_argument("--enable-thinking", action="store_false", dest="disable_thinking", help="Permite thinking em modelos compatíveis.")
     parser.add_argument("--request-timeout", type=float, default=180.0)
+    parser.add_argument(
+        "--retry-errors",
+        action="store_true",
+        default=False,
+        help="Reclassifica registros cuja tentativa mais recente no JSONL possui error preenchido.",
+    )
     args = parser.parse_args()
     args.task = pc.normalize_task(args.task)
     if args.input is None:
@@ -1395,7 +1450,7 @@ def main():
     if args.limit is not None:
         df = df.head(args.limit).copy()
 
-    processed_ids = load_processed_ids(output_jsonl, args.id_col)
+    processed_ids = load_processed_ids(output_jsonl, args.id_col, retry_errors=args.retry_errors)
     if processed_ids:
         df = df[~df[args.id_col].astype(str).isin(processed_ids)].copy()
 
@@ -1618,12 +1673,19 @@ def main():
 
     final_df.to_csv(output_csv, index=False, encoding="utf-8")
 
-    total_run_seconds = time.perf_counter() - benchmark_run_start
+    current_run_seconds = time.perf_counter() - benchmark_run_start
+    final_benchmark_rows = benchmark_rows_from_dataframe(final_df, args.id_col)
+    total_run_seconds = _sum([x.get("total_time_seconds") for x in final_benchmark_rows])
+    if total_run_seconds is None:
+        total_run_seconds = current_run_seconds
     benchmark_report = summarize_benchmark(
-        benchmark_rows=benchmark_rows,
+        benchmark_rows=final_benchmark_rows,
         total_run_seconds=total_run_seconds,
         args=args,
     )
+    benchmark_report["current_run_seconds"] = round(float(current_run_seconds), 6)
+    benchmark_report["retry_errors"] = bool(args.retry_errors)
+    benchmark_report["current_run_attempted_classifications"] = len(benchmark_rows)
 
     benchmark_report_path = args.benchmark_report
     if benchmark_report_path is None:

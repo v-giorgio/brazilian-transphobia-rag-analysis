@@ -133,7 +133,7 @@ Responda APENAS com JSON neste formato:
 
 FEW_USER_TEMPLATE = """Classifique o comentário abaixo em esquema few-shot.
 
-A seguir ha exemplos anotados. Use-os apenas como referencia de decisao e formato.
+A seguir há exemplos anotados. Use-os apenas como referência de decisão e formato.
 
 {few_shot_examples}
 
@@ -151,7 +151,7 @@ Responda APENAS com JSON neste formato:
 
 RAG_USER_TEMPLATE = """Classifique o comentário abaixo em esquema few-shot com RAG.
 
-A seguir ha exemplos anotados. Use-os apenas como referencia de decisao e formato.
+A seguir há exemplos anotados. Use-os apenas como referência de decisão e formato.
 
 {few_shot_examples}
 
