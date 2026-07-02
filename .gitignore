@@ -6,6 +6,7 @@ node_modules/
 
 # datasets and generated data
 /data/
+**/data/cleaned_comments/
 **/data/**/*.csv
 **/data/**/*.jsonl
 **/data/**/metadata*.json
