@@ -32,6 +32,10 @@ pip install -r requirements-all.txt
 
 Para coleta via YouTube Data API, crie um arquivo `.env` a partir de `.env.example` e preencha `YOUTUBE_API_KEY`.
 
+### Dados
+
+Os datasets finais e as predições dos modelos estão disponíveis em [`v-giorgio/brazilian-transphobia-rag-analysis-dataset`](https://github.com/v-giorgio/brazilian-transphobia-rag-analysis-dataset).
+
 ### Como citar
 
 ```bibtex
@@ -78,6 +82,10 @@ pip install -r requirements-all.txt
 ```
 
 For YouTube Data API collection, create a `.env` file from `.env.example` and set `YOUTUBE_API_KEY`.
+
+### Dataset
+
+The final datasets and model predictions are available at [`v-giorgio/brazilian-transphobia-rag-analysis-dataset`](https://github.com/v-giorgio/brazilian-transphobia-rag-analysis-dataset).
 
 ### Citation
 
