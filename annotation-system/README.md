@@ -1,29 +1,59 @@
-## Endpoints
+# Annotation Tool
+
+## pt-br
+
+Ferramenta web para anotação manual de comentários. O frontend usa React/Vite e as rotas serverless usam Supabase.
+
+### Configuração
+
+Crie `annotation-system/.env.local` a partir de `.env.example`:
 
 ```bash
-GET /api/health
-GET /api/next?token=XXXX
-POST /api/submit
-GET /api/progress?token=XXXX
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-## Deploy vercel
+### Execução
+
 ```bash
+cd annotation-system
 npm install
-vercel login
-vercel
+npm run dev
 ```
 
+### Endpoints
 
-curl -X POST https://annotation-system-wine.vercel.app/api/submit \
-  -H "Content-Type: application/json" \
-  -d '{
-    "token": "TKN003",
-    "assignment_id": 1210,
-    "comment_id": 1,
-    "speech_class": "HATEFUL",
-    "offensive_class": "NON_OFFENSIVE",
-    "aspects": ["POLITICS"]
-  }'
+```text
+GET  /api/next?token=<annotator_token>
+GET  /api/progress?token=<annotator_token>
+POST /api/submit
+```
 
-curl -X GET https://annotation-system-wine.vercel.app/api/next?token=TKN003
+## en
+
+Web tool for manual comment annotation. The frontend uses React/Vite and the serverless routes use Supabase.
+
+### Configuration
+
+Create `annotation-system/.env.local` from `.env.example`:
+
+```bash
+SUPABASE_URL=https://xxxx.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+```
+
+### Run
+
+```bash
+cd annotation-system
+npm install
+npm run dev
+```
+
+### Endpoints
+
+```text
+GET  /api/next?token=<annotator_token>
+GET  /api/progress?token=<annotator_token>
+POST /api/submit
+```

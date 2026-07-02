@@ -4,11 +4,22 @@ __pycache__
 node_modules/
 **/*(deprec)*
 
+# datasets and generated data
+/data/
+**/data/**/*.csv
+**/data/**/*.jsonl
+**/data/**/metadata*.json
+**/output/
+**/outputs/
+**/models/
+**/checkpoints/
+**/metrics/
+
 # bertimbau
 **/bertimbau/data/
-**/bertimbau/pipeline/data/**/*.csv
+**/bertimbau/pipeline/data/
 **/bertimbau/pipeline/models/
-**/bertimbau/pipeline/outputs/**/*_predictions.csv
+**/bertimbau/pipeline/outputs/
 
 # metrics
 **/metrics/wtag/**
@@ -18,11 +29,15 @@ scripts/rag/docs/data/
 scripts/rag/docs/transcriptions/
 scripts/rag/docs/**/*.bin
 scripts/rag/docs/**/*.webm
+scripts/rag/docs/**/*.jsonl
+scripts/rag/docs/**/*.csv
 scripts/rag/docs/**/*backup*
 scripts/rag/docs/**/*copy*
 
 # llm
 scripts/rag/pipeline/data/
+scripts/rag/pipeline/output/
+scripts/rag/pipeline/outputs/
 scripts/rag/pipeline/*_explicacao.md
 
 # rsl
