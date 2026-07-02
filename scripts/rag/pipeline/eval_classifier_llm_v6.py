@@ -3,7 +3,7 @@ import ast
 import json
 import argparse
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -26,6 +26,11 @@ from sklearn.preprocessing import label_binarize
 from datasets import Dataset
 from ragas import evaluate as ragas_evaluate
 import ragas.metrics as ragas_metrics
+
+try:
+    import ragas.metrics.collections as ragas_metric_collections
+except ImportError:
+    ragas_metric_collections = None
 
 DEFAULT_BASE_OUTPUT_DIR = "./data/metrics"
 DEFAULT_PREDICTIONS_DIR = "./data"
@@ -722,6 +727,20 @@ def build_ragas_question(row: pd.Series, tasks: List[str]) -> str:
     )
 
 
+def first_available_row_value(row: pd.Series, columns: List[str], default: Any) -> Any:
+    for column in columns:
+        value = row.get(column)
+        if value is None:
+            continue
+        try:
+            if pd.isna(value):
+                continue
+        except (TypeError, ValueError):
+            pass
+        return value
+    return default
+
+
 def export_ragas_dataset(df: pd.DataFrame, tasks: List[str], output_prefix: str, limit: Optional[int] = None) -> Optional[str]:
     if "retrieved_contexts" not in df.columns:
         return None
@@ -731,7 +750,7 @@ def export_ragas_dataset(df: pd.DataFrame, tasks: List[str], output_prefix: str,
         ragas_df = ragas_df.head(limit).copy()
 
     rows = []
-    for _, row in ragas_df.iterrows():
+    for row_idx, (_, row) in enumerate(ragas_df.iterrows()):
         contexts = safe_json_loads(row.get("retrieved_contexts"), default=[])
         if not contexts:
             continue
@@ -742,9 +761,17 @@ def export_ragas_dataset(df: pd.DataFrame, tasks: List[str], output_prefix: str,
         question = build_ragas_question(row, tasks)
         answer = build_ragas_answer(row, tasks)
         reference = build_ragas_reference(row, tasks)
+        source_id = first_available_row_value(
+            row,
+            ["dataset_comment_id", "comment_id", "id"],
+            row_idx,
+        )
+        ragas_row_id = f"{source_id}:{row_idx}"
 
         rows.append({
-            "id": row.get("id", row.get("comment_id", None)),
+            "_ragas_row_id": ragas_row_id,
+            "id": source_id,
+            "dataset_comment_id": row.get("dataset_comment_id", None),
             "question": question,
             "answer": answer,
             "contexts": contexts,
@@ -780,14 +807,42 @@ def resolve_ragas_metrics(metric_names: List[str]) -> List[Any]:
         "noise_sensitivity": ["noise_sensitivity_relevant", "NoiseSensitivity"],
     }
 
+    def is_metric_object(candidate: Any) -> bool:
+        return (
+            hasattr(candidate, "name")
+            or hasattr(candidate, "required_columns")
+            or hasattr(candidate, "init")
+        )
+
+    def materialize_metric(candidate: Any) -> Any:
+        if isinstance(candidate, type):
+            metric = candidate()
+            return metric if is_metric_object(metric) else None
+        if is_metric_object(candidate):
+            return candidate
+        if callable(candidate):
+            try:
+                metric = candidate()
+            except TypeError:
+                return None
+            return metric if is_metric_object(metric) else None
+        return None
+
     resolved = []
     missing = []
+    # O módulo antigo ainda é mais estável entre versões do RAGAS. O collections
+    # fica como fallback para versões em que os nomes antigos deixarem de existir.
+    metric_sources = [source for source in [ragas_metrics, ragas_metric_collections] if source is not None]
     for name in metric_names:
         found = None
         for attr in candidates.get(name, [name]):
-            if hasattr(ragas_metrics, attr):
-                candidate = getattr(ragas_metrics, attr)
-                found = candidate() if isinstance(candidate, type) else candidate
+            for source in metric_sources:
+                if hasattr(source, attr):
+                    candidate = getattr(source, attr)
+                    found = materialize_metric(candidate)
+                    if found is not None:
+                        break
+            if found is not None:
                 break
         if found is None:
             missing.append(name)
@@ -799,29 +854,216 @@ def resolve_ragas_metrics(metric_names: List[str]) -> List[Any]:
     return resolved
 
 
+def build_ragas_runtime(
+    provider: str,
+    ollama_base_url: str,
+    ollama_llm: str,
+    ollama_embeddings: str,
+) -> Tuple[Optional[Any], Optional[Any]]:
+    if provider == "default":
+        return None, None
+
+    if provider != "ollama":
+        raise ValueError(f"Provedor RAGAS não suportado: {provider}")
+
+    try:
+        from langchain_ollama import ChatOllama, OllamaEmbeddings
+    except ImportError:
+        try:
+            from langchain_community.chat_models import ChatOllama
+            from langchain_community.embeddings import OllamaEmbeddings
+        except ImportError as exc:
+            raise RuntimeError(
+                "Para executar RAGAS com Ollama, instale as dependências: "
+                "pip install langchain langchain-ollama"
+            ) from exc
+
+    try:
+        from ragas.llms import LangchainLLMWrapper
+    except ImportError as exc:
+        raise RuntimeError(
+            "A versão instalada do RAGAS não expõe LangchainLLMWrapper. "
+            "Atualize o RAGAS ou execute com --ragas-provider default."
+        ) from exc
+
+    try:
+        from ragas.embeddings import LangchainEmbeddingsWrapper
+    except ImportError:
+        try:
+            from ragas.embeddings.base import LangchainEmbeddingsWrapper
+        except ImportError as exc:
+            raise RuntimeError(
+                "A versão instalada do RAGAS não expõe LangchainEmbeddingsWrapper. "
+                "Atualize o RAGAS ou execute com --ragas-provider default."
+            ) from exc
+
+    chat_model = ChatOllama(
+        model=ollama_llm,
+        base_url=ollama_base_url,
+        temperature=0,
+    )
+    embedding_model = OllamaEmbeddings(
+        model=ollama_embeddings,
+        base_url=ollama_base_url,
+    )
+
+    return LangchainLLMWrapper(chat_model), LangchainEmbeddingsWrapper(embedding_model)
+
+
+def attach_ragas_runtime(metrics: List[Any], llm: Optional[Any], embeddings: Optional[Any]) -> None:
+    for metric in metrics:
+        if llm is not None and hasattr(metric, "llm"):
+            metric.llm = llm
+        if embeddings is not None and hasattr(metric, "embeddings"):
+            metric.embeddings = embeddings
+
+
+def ensure_ragas_row_ids(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    normalized = []
+    for idx, row in enumerate(rows):
+        item = dict(row)
+        row_id = item.get("_ragas_row_id")
+        if row_id is None or str(row_id).strip() == "" or str(row_id).lower() == "nan":
+            source_id = item.get("dataset_comment_id", item.get("id", idx))
+            row_id = f"{source_id}:{idx}"
+            item["_ragas_row_id"] = row_id
+        normalized.append(item)
+    return normalized
+
+
+def load_completed_ragas_ids(results_path: str, required_metrics: Optional[List[str]] = None) -> set:
+    if not os.path.exists(results_path):
+        return set()
+    try:
+        results_df = pd.read_csv(results_path)
+    except Exception:
+        return set()
+    if "_ragas_row_id" not in results_df.columns:
+        return set()
+    required_metrics = required_metrics or []
+    completed_df = results_df.copy()
+    for metric_name in required_metrics:
+        if metric_name not in completed_df.columns:
+            return set()
+        completed_df = completed_df[
+            completed_df[metric_name].notna()
+            & (completed_df[metric_name].astype(str).str.strip() != "")
+        ]
+    return set(completed_df["_ragas_row_id"].dropna().astype(str))
+
+
+def append_ragas_batch_results(results_path: str, result_df: pd.DataFrame, incremental: bool) -> None:
+    if incremental and os.path.exists(results_path):
+        existing_df = pd.read_csv(results_path)
+        if "_ragas_row_id" in existing_df.columns and "_ragas_row_id" in result_df.columns:
+            batch_ids = set(result_df["_ragas_row_id"].astype(str))
+            existing_df = existing_df[
+                ~existing_df["_ragas_row_id"].astype(str).isin(batch_ids)
+            ]
+        combined_df = pd.concat([existing_df, result_df], ignore_index=True, sort=False)
+    else:
+        combined_df = result_df
+
+    combined_df.to_csv(results_path, index=False, encoding="utf-8")
+
+
+def save_ragas_results_json(results_path: str, json_path: str) -> None:
+    if not os.path.exists(results_path):
+        return
+    results_df = pd.read_csv(results_path)
+    with open(json_path, "w", encoding="utf-8") as f:
+        json.dump(results_df.to_dict(orient="records"), f, ensure_ascii=False, indent=2)
+
+
 def run_ragas_evaluation(
     ragas_jsonl_path: str,
     output_prefix: str,
     metric_names: List[str],
+    ragas_provider: str = "default",
+    ragas_ollama_base_url: str = "http://localhost:11434",
+    ragas_ollama_llm: str = DEFAULT_MODEL,
+    ragas_ollama_embeddings: str = "nomic-embed-text",
+    incremental: bool = True,
+    batch_size: int = 10,
 ) -> None:
+    results_csv_path = f"{output_prefix}_results.csv"
+    results_json_path = f"{output_prefix}_results.json"
+    error_path = f"{output_prefix}_error.json"
+    last_metric_debug: List[str] = []
+
     try:
-        rows = load_jsonl(ragas_jsonl_path).to_dict(orient="records")
-        dataset = Dataset.from_list(rows)
-        metrics = resolve_ragas_metrics(metric_names)
-        result = ragas_evaluate(dataset, metrics=metrics)
+        rows = ensure_ragas_row_ids(load_jsonl(ragas_jsonl_path).to_dict(orient="records"))
+        if batch_size <= 0:
+            batch_size = len(rows) if rows else 1
 
-        if hasattr(result, "to_pandas"):
-            result_df = result.to_pandas()
-        else:
-            result_df = pd.DataFrame(result)
+        llm, embeddings = build_ragas_runtime(
+            ragas_provider,
+            ragas_ollama_base_url,
+            ragas_ollama_llm,
+            ragas_ollama_embeddings,
+        )
 
-        result_df.to_csv(f"{output_prefix}_results.csv", index=False, encoding="utf-8")
-        with open(f"{output_prefix}_results.json", "w", encoding="utf-8") as f:
-            json.dump(result_df.to_dict(orient="records"), f, ensure_ascii=False, indent=2)
+        completed_ids = load_completed_ragas_ids(results_csv_path, metric_names) if incremental else set()
+        remaining_rows = [
+            row for row in rows
+            if str(row.get("_ragas_row_id")) not in completed_ids
+        ]
+
+        if not remaining_rows:
+            save_ragas_results_json(results_csv_path, results_json_path)
+            return
+
+        for start in range(0, len(remaining_rows), batch_size):
+            batch_rows = remaining_rows[start:start + batch_size]
+            batch_ids = [str(row.get("_ragas_row_id")) for row in batch_rows]
+            dataset = Dataset.from_list(batch_rows)
+            metrics = resolve_ragas_metrics(metric_names)
+            last_metric_debug = [
+                f"{type(metric).__module__}.{type(metric).__name__}"
+                for metric in metrics
+            ]
+            attach_ragas_runtime(metrics, llm, embeddings)
+
+            evaluate_kwargs = {"metrics": metrics}
+            if llm is not None:
+                evaluate_kwargs["llm"] = llm
+            if embeddings is not None:
+                evaluate_kwargs["embeddings"] = embeddings
+
+            result = ragas_evaluate(dataset, **evaluate_kwargs)
+
+            if hasattr(result, "to_pandas"):
+                result_df = result.to_pandas()
+            else:
+                result_df = pd.DataFrame(result)
+
+            if len(result_df) != len(batch_rows):
+                raise RuntimeError(
+                    f"RAGAS retornou {len(result_df)} linhas para um lote de {len(batch_rows)} entradas."
+                )
+
+            result_df["_ragas_row_id"] = batch_ids
+            result_df = result_df[["_ragas_row_id", *[c for c in result_df.columns if c != "_ragas_row_id"]]]
+
+            append_ragas_batch_results(results_csv_path, result_df, incremental)
+            save_ragas_results_json(results_csv_path, results_json_path)
+
+        if os.path.exists(error_path):
+            os.remove(error_path)
     except Exception as exc:
-        with open(f"{output_prefix}_error.json", "w", encoding="utf-8") as f:
+        completed_rows = len(load_completed_ragas_ids(results_csv_path, metric_names))
+        with open(error_path, "w", encoding="utf-8") as f:
             json.dump({
                 "error": str(exc),
+                "provider": ragas_provider,
+                "ollama_base_url": ragas_ollama_base_url if ragas_provider == "ollama" else None,
+                "ollama_llm": ragas_ollama_llm if ragas_provider == "ollama" else None,
+                "ollama_embeddings": ragas_ollama_embeddings if ragas_provider == "ollama" else None,
+                "incremental": incremental,
+                "batch_size": batch_size,
+                "completed_rows": completed_rows,
+                "requested_metrics": metric_names,
+                "resolved_metric_types": last_metric_debug,
                 "note": "A avaliação RAGAS exige a biblioteca ragas, datasets e configuração de LLM/embeddings compatível com as métricas escolhidas. O dataset RAGAS foi exportado para execução posterior.",
             }, f, ensure_ascii=False, indent=2)
 
@@ -840,6 +1082,12 @@ def evaluate_subset(
     enable_ragas: bool = False,
     ragas_limit: Optional[int] = None,
     ragas_metrics: Optional[List[str]] = None,
+    ragas_provider: str = "default",
+    ragas_ollama_base_url: str = "http://localhost:11434",
+    ragas_ollama_llm: str = DEFAULT_MODEL,
+    ragas_ollama_embeddings: str = "nomic-embed-text",
+    ragas_incremental: bool = True,
+    ragas_batch_size: int = 10,
 ) -> pd.DataFrame:
     ensure_dir(output_dir)
 
@@ -928,7 +1176,17 @@ def evaluate_subset(
     if ragas_input_path:
         json_metrics["ragas_input"] = ragas_input_path
         if enable_ragas:
-            run_ragas_evaluation(ragas_input_path, ragas_prefix, ragas_metrics)
+            run_ragas_evaluation(
+                ragas_input_path,
+                ragas_prefix,
+                ragas_metrics,
+                ragas_provider=ragas_provider,
+                ragas_ollama_base_url=ragas_ollama_base_url,
+                ragas_ollama_llm=ragas_ollama_llm,
+                ragas_ollama_embeddings=ragas_ollama_embeddings,
+                incremental=ragas_incremental,
+                batch_size=ragas_batch_size,
+            )
             json_metrics["ragas_results_prefix"] = ragas_prefix
 
     def row_from_metrics(task: str, metrics: Dict[str, Any]) -> Dict[str, Any]:
@@ -1126,6 +1384,38 @@ def main():
         default=["faithfulness", "context_precision", "context_recall"],
         help="Métricas RAGAS a executar. Exemplos: faithfulness context_precision context_recall answer_relevancy noise_sensitivity.",
     )
+    parser.add_argument(
+        "--ragas-provider",
+        default=os.getenv("RAGAS_PROVIDER", "default"),
+        choices=["default", "ollama"],
+        help="Provedor de LLM/embeddings para o RAGAS. Use ollama para avaliação local.",
+    )
+    parser.add_argument(
+        "--ragas-ollama-base-url",
+        default=os.getenv("RAGAS_OLLAMA_BASE_URL", "http://localhost:11434"),
+        help="URL base do servidor Ollama usada pelo RAGAS.",
+    )
+    parser.add_argument(
+        "--ragas-ollama-llm",
+        default=os.getenv("RAGAS_OLLAMA_LLM", DEFAULT_MODEL),
+        help="Modelo Ollama usado como avaliador LLM do RAGAS.",
+    )
+    parser.add_argument(
+        "--ragas-ollama-embeddings",
+        default=os.getenv("RAGAS_OLLAMA_EMBEDDINGS", "nomic-embed-text"),
+        help="Modelo Ollama de embeddings usado pelo RAGAS.",
+    )
+    parser.add_argument(
+        "--ragas-batch-size",
+        type=int,
+        default=int(os.getenv("RAGAS_BATCH_SIZE", "10")),
+        help="Tamanho dos lotes avaliados pelo RAGAS. Os resultados são salvos ao final de cada lote.",
+    )
+    parser.add_argument(
+        "--no-ragas-incremental",
+        action="store_true",
+        help="Desativa retomada incremental do RAGAS e sobrescreve os resultados da execução.",
+    )
     args = parser.parse_args()
 
     tasks = normalize_requested_tasks(args.tasks)
@@ -1179,6 +1469,12 @@ def main():
                     enable_ragas=args.ragas,
                     ragas_limit=args.ragas_limit,
                     ragas_metrics=args.ragas_metrics,
+                    ragas_provider=args.ragas_provider,
+                    ragas_ollama_base_url=args.ragas_ollama_base_url,
+                    ragas_ollama_llm=args.ragas_ollama_llm,
+                    ragas_ollama_embeddings=args.ragas_ollama_embeddings,
+                    ragas_incremental=not args.no_ragas_incremental,
+                    ragas_batch_size=args.ragas_batch_size,
                 )
 
     rebuild_overall_from_existing(by_model_dir, overall_dir, tasks)

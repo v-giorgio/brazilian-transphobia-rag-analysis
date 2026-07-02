@@ -4,3 +4,5 @@ scikit-learn
 matplotlib
 datasets
 ragas
+langchain
+langchain-ollama

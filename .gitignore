@@ -24,3 +24,9 @@ scripts/rag/docs/**/*copy*
 # llm
 scripts/rag/pipeline/data/
 scripts/rag/pipeline/*_explicacao.md
+
+# rsl
+**/rsl_search/
+
+# metrics
+**/metrics_generation/

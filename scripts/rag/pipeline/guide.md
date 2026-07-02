@@ -51,8 +51,10 @@ mistral-small:24b          8039dd90c113    14 GB     10 minutes ago
 
 ```bash
 python classifier_llm_zero_shot_v2.py \
-  --task speech \
-  --model mistral-small:24b
+  --task aspects \
+  --model mistral-small:24b \
+  --retry-errors \
+  --fast-prompt
 ```
 
 Para testar poucas linhas:
@@ -68,8 +70,10 @@ python classifier_llm_zero_shot_v2.py \
 
 ```bash
 python classifier_llm_few_shot_v2.py \
-  --task offensive \
-  --model gemma3:27b
+  --task aspects \
+  --model mistral-small:24b \
+  --retry-errors \
+  --fast-prompt
 ```
 
 Para sobrescrever a fonte de exemplos:
@@ -188,10 +192,16 @@ python classifier_llm_rag_v12.py \
 ```bash
 python classifier_llm_rag_v12.py \
   --task aspects \
-  --rag-mode both \
+  --rag-mode wiki \
   --model mistral-small:24b \
   --aspect-examples-per-label 3 \
-  --max-retries 2
+  --max-retries 6 \
+  --retry-errors \
+  --fast-prompt \
+  --retrieval-level fast \
+  --top-k-transcripts 1 \
+  --top-k-entities 1 \
+  --top-k-explanations 1
 ```
 
 ## Avaliacao
@@ -223,6 +233,17 @@ python eval_classifier_llm_v6.py \
   --model qwen3:14b \
   --ragas
 ```
+
+Somente RAGAS:
+
+RAGAS_ALL=1 \
+RAGAS_LIMIT=10 \
+RAGAS_BATCH_SIZE=5 \
+RAGAS_METRICS="context_recall context_precision answer_relevancy faithfulness" \
+RAGAS_PROVIDER=ollama \
+RAGAS_OLLAMA_LLM=mistral-small:24b \
+RAGAS_OLLAMA_EMBEDDINGS=nomic-embed-text \
+bash scripts/rag/pipeline/run_eval_all_models.sh
 
 ## Parametros uteis
 
